@@ -24,14 +24,34 @@ app.get("/api/v1/products/:productID", (req, res) => {
 });
 
 app.get("/api/v1/query", (req, res) => {
-  console.log(req.query);
+  let finalProduct = [...products];
   // Filter items based on search term
-  const searchProducts = products.filter((item) =>
-    item.name.toLowerCase().includes(req.query.search.toLowerCase())
-  );
+  if (req.query.search) {
+    finalProduct = finalProduct.filter((item) =>
+      item.name.toLowerCase().includes(req.query.search.toLowerCase())
+    );
+  }
   // Return the first n limit items
-  const limitProducts = searchProducts.slice(0, req.query.limit);
-  res.json(limitProducts);
+  if (req.query.limit) {
+    // Paginate query
+    if (req.query.page && req.query.page > 1) {
+      const offset = parseInt(req.query.page) * parseInt(req.query.limit);
+      finalProduct = finalProduct.slice(
+        offset - parseInt(req.query.limit),
+        offset
+      );
+    } else {
+      finalProduct = finalProduct.slice(0, req.query.limit);
+    }
+  }
+
+  // Price limiter
+  if (req.query.maxPrice) {
+    finalProduct = finalProduct.filter(
+      (item) => item.price <= parseFloat(req.query.maxPrice)
+    );
+  }
+  res.json(finalProduct);
 });
 
 app.post("/", (req, res) => {
