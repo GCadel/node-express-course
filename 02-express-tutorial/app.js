@@ -1,5 +1,5 @@
 const express = require("express");
-const { products } = require("./data.js");
+const { people, products } = require("./data.js");
 
 const app = express();
 
@@ -10,8 +10,24 @@ function logger(req, res, next) {
 }
 
 app.use(express.static("./public"));
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 app.use([], logger);
+
+app.get("/api/v1/people", (req, res) => {
+  res.json(people);
+});
+
+app.post("/api/v1/people", (req, res) => {
+  const name = req.body.name;
+  if (name) {
+    people.push({ id: people.length + 1, name: name });
+    res.status(201).json({ success: true, name: name });
+  } else {
+    res.status(400).json({ success: false, message: "Please provide a name" });
+  }
+});
 
 app.get("/api/v1/test", (req, res) => {
   res.json({ message: "It worked!" });
