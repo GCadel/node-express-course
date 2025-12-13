@@ -2,7 +2,16 @@ const express = require("express");
 const { products } = require("./data.js");
 
 const app = express();
+
+function logger(req, res, next) {
+  const dateTime = new Date();
+  console.log(dateTime, req.method, req.url);
+  next();
+}
+
 app.use(express.static("./public"));
+
+app.use([], logger);
 
 app.get("/api/v1/test", (req, res) => {
   res.json({ message: "It worked!" });
