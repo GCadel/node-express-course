@@ -13,7 +13,7 @@ form.addEventListener("submit", async (e) => {
 
   // Request data from server
   const req = await fetch(
-    `http://localhost:3000/api/v1/query?search=${fields.search}&maxPrice=${fields.maxPrice}`
+    `http://localhost:3000/api/v1/products/query?search=${fields.search}&maxPrice=${fields.maxPrice}`
   );
   const data = await req.json();
 
