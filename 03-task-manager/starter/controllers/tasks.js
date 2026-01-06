@@ -1,24 +1,36 @@
 const Task = require("../models/Task");
 
 const getAllTasks = async (req, res) => {
-  const tasks = await Task.find();
-  res.status(200).json(tasks);
+  try {
+    const tasks = await Task.find();
+    res.status(200).json({ tasks });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Unable to fetch tasks", error: error.message });
+  }
 };
 
 const getTask = async (req, res) => {
   const taskId = req.params.id;
-  const task = await Task.findById(taskId);
-  if (!task) {
-    res.status(404).json({ message: "Item does not exist" });
-    return;
+  try {
+    const task = await Task.findById(taskId);
+    if (!task) {
+      throw new Error("Item Does Not Exist");
+    }
+    res.status(200).json({ task });
+  } catch (error) {
+    res.status(500).json({
+      message: `Unable to fetch task ${taskId}`,
+      error: error.message,
+    });
   }
-  res.status(200).json(task);
 };
 
 const createTask = async (req, res) => {
   try {
     const task = await Task.create(req.body);
-    res.status(201).json(task);
+    res.status(201).json({ task });
   } catch (error) {
     res
       .status(400)
@@ -28,26 +40,34 @@ const createTask = async (req, res) => {
 
 const updateTask = async (req, res) => {
   const taskId = req.params.id;
-  const result = await Task.findByIdAndUpdate(taskId, req.body);
-  if (!result) {
-    res
-      .status(404)
-      .json({ message: "Unable to update task", error: "Task does not exist" });
-    return;
+  try {
+    const result = await Task.findByIdAndUpdate(taskId, req.body);
+    if (!result) {
+      throw new Error("Task does not exist");
+    }
+    res.status(200).json({ message: `Updated Task ${taskId}` });
+  } catch (error) {
+    res.status(400).json({
+      message: `Unable to update task ${taskId}`,
+      error: error.message,
+    });
   }
-  res.status(200).json({ message: `Updated Task ${taskId}` });
 };
 
 const deleteTask = async (req, res) => {
   const taskId = req.params.id;
-  const result = await Task.findByIdAndDelete(taskId);
-  if (!result) {
-    res
-      .status(404)
-      .json({ message: "Unable to delete task", error: "Task does not exist" });
-    return;
+  try {
+    const result = await Task.findByIdAndDelete(taskId);
+    if (!result) {
+      throw new Error("Task does not exist");
+    }
+    res.status(200).json({ message: `Deleted Task ${taskId}` });
+  } catch (error) {
+    res.status(400).json({
+      message: `Unable to delete task ${taskId}`,
+      error: error.message,
+    });
   }
-  res.status(200).json({ message: `Deleted Task ${taskId}` });
 };
 
 module.exports = {
