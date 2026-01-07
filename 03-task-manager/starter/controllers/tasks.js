@@ -1,18 +1,34 @@
 const Task = require("../models/Task");
 
 const getAllTasks = async (req, res) => {
-  const tasks = await Task.find();
-  res.status(200).json(tasks);
+  try {
+    const tasks = await Task.find();
+    res.status(200).json({ tasks });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Unable to fetch tasks", error: error.message });
+  }
 };
 
 const getTask = async (req, res) => {
-  const taskId = req.params.id;
-  const task = await Task.findById(taskId);
-  if (!task) {
-    res.status(404).json({ message: "Item does not exist" });
-    return;
+  const { id: taskId } = req.params;
+  try {
+    // const task = await Task.findById(taskId);
+    const task = await Task.findOne({ _id: taskId });
+    if (!task) {
+      // throw new Error("Item Does Not Exist");
+      return res
+        .status(404)
+        .json({ message: `Unable to find task with id ${taskId}` });
+    }
+    res.status(200).json({ task });
+  } catch (error) {
+    res.status(500).json({
+      message: `Unable to fetch task ${taskId}`,
+      error: error.message,
+    });
   }
-  res.status(200).json(task);
 };
 
 const createTask = async (req, res) => {
@@ -21,33 +37,47 @@ const createTask = async (req, res) => {
     res.status(201).json(task);
   } catch (error) {
     res
-      .status(400)
+      .status(500)
       .json({ message: "Unable to create task", error: error.message });
   }
 };
 
 const updateTask = async (req, res) => {
-  const taskId = req.params.id;
-  const result = await Task.findByIdAndUpdate(taskId, req.body);
-  if (!result) {
-    res
-      .status(404)
-      .json({ message: "Unable to update task", error: "Task does not exist" });
-    return;
+  const taskID = req.params.id;
+
+  try {
+    const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!task) {
+      // throw new Error("Task does not exist");
+      return res.status(404).json({ message: `Unable to find task ${taskID}` });
+    }
+    res.status(200).json({ task });
+  } catch (error) {
+    res.status(500).json({
+      message: `Unable to update task ${taskID}`,
+      error: error.message,
+    });
   }
-  res.status(200).json({ message: `Updated Task ${taskId}` });
 };
 
 const deleteTask = async (req, res) => {
-  const taskId = req.params.id;
-  const result = await Task.findByIdAndDelete(taskId);
-  if (!result) {
-    res
-      .status(404)
-      .json({ message: "Unable to delete task", error: "Task does not exist" });
-    return;
+  const { id: taskId } = req.params;
+  try {
+    const result = await Task.findByIdAndDelete(taskId);
+    if (!result) {
+      throw new Error("Task does not exist");
+    }
+    res.status(200).json({ message: `Deleted Task ${taskId}` });
+  } catch (error) {
+    res.status(500).json({
+      message: `Unable to delete task ${taskId}`,
+      error: error.message,
+    });
   }
-  res.status(200).json({ message: `Deleted Task ${taskId}` });
 };
 
 module.exports = {
