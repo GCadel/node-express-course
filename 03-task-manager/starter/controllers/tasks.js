@@ -12,11 +12,15 @@ const getAllTasks = async (req, res) => {
 };
 
 const getTask = async (req, res) => {
-  const taskId = req.params.id;
+  const { id: taskId } = req.params;
   try {
-    const task = await Task.findById(taskId);
+    // const task = await Task.findById(taskId);
+    const task = await Task.findOne({ _id: taskId });
     if (!task) {
-      throw new Error("Item Does Not Exist");
+      // throw new Error("Item Does Not Exist");
+      return res
+        .status(404)
+        .json({ message: `Unable to find task with id ${taskId}` });
     }
     res.status(200).json({ task });
   } catch (error) {
@@ -30,24 +34,28 @@ const getTask = async (req, res) => {
 const createTask = async (req, res) => {
   try {
     const task = await Task.create(req.body);
-    res.status(201).json({ task });
+    res.status(201).json(task);
   } catch (error) {
     res
-      .status(400)
+      .status(500)
       .json({ message: "Unable to create task", error: error.message });
   }
 };
 
 const updateTask = async (req, res) => {
-  const taskId = req.params.id;
+  const { id: taskId } = req.params;
   try {
-    const result = await Task.findByIdAndUpdate(taskId, req.body);
+    const result = await Task.findByIdAndUpdate(taskId, req.body, {
+      new: true,
+      runValidators: true,
+    });
     if (!result) {
-      throw new Error("Task does not exist");
+      // throw new Error("Task does not exist");
+      return res.status(404).json({ message: `Unable to find task ${taskId}` });
     }
     res.status(200).json({ message: `Updated Task ${taskId}` });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: `Unable to update task ${taskId}`,
       error: error.message,
     });
@@ -55,7 +63,7 @@ const updateTask = async (req, res) => {
 };
 
 const deleteTask = async (req, res) => {
-  const taskId = req.params.id;
+  const { id: taskId } = req.params;
   try {
     const result = await Task.findByIdAndDelete(taskId);
     if (!result) {
@@ -63,7 +71,7 @@ const deleteTask = async (req, res) => {
     }
     res.status(200).json({ message: `Deleted Task ${taskId}` });
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
       message: `Unable to delete task ${taskId}`,
       error: error.message,
     });
