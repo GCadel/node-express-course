@@ -43,20 +43,22 @@ const createTask = async (req, res) => {
 };
 
 const updateTask = async (req, res) => {
-  const { id: taskId } = req.params;
+  const taskID = req.params.id;
+
   try {
-    const result = await Task.findByIdAndUpdate(taskId, req.body, {
+    const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, {
       new: true,
       runValidators: true,
     });
-    if (!result) {
+
+    if (!task) {
       // throw new Error("Task does not exist");
-      return res.status(404).json({ message: `Unable to find task ${taskId}` });
+      return res.status(404).json({ message: `Unable to find task ${taskID}` });
     }
-    res.status(200).json({ message: `Updated Task ${taskId}` });
+    res.status(200).json({ task });
   } catch (error) {
     res.status(500).json({
-      message: `Unable to update task ${taskId}`,
+      message: `Unable to update task ${taskID}`,
       error: error.message,
     });
   }
