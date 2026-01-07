@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const maxChar = 40;
 
 const TaskSchema = new mongoose.Schema({
-  title: {
+  name: {
     type: String,
     required: [true, "Task title required"],
     trim: true,

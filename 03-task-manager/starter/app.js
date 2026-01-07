@@ -5,10 +5,11 @@ require("dotenv").config();
 
 const app = express();
 
+app.use(express.static("./public"));
 app.use(express.json());
 const PORT = 3000;
 
-app.use("/api/tasks", taskRouter);
+app.use("/api/v1/tasks", taskRouter);
 
 app.get("/*", (req, res) => {
   res.status(404).json({ message: "Not Found" });
