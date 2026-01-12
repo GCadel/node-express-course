@@ -9,7 +9,7 @@ const TaskSchema = new mongoose.Schema({
     trim: true,
     maxlength: [maxChar, `Title must be no more than ${maxChar} characters`],
   },
-  isComplete: { type: Boolean, default: false },
+  completed: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model("Task", TaskSchema);
