@@ -2,12 +2,12 @@ const Product = require("../models/product");
 
 const getAllProductsStatic = async (req, res) => {
   const query = { name: "vase table" };
-  const products = await Product.find(query);
+  const products = await Product.find({}).sort("-name");
   res.status(200).json({ amount: products.length, products });
 };
 
 const getAllProducts = async (req, res) => {
-  const { featured, company, name } = req.query;
+  const { featured, company, name, sort } = req.query;
   const queryObject = {};
 
   if (featured) {
@@ -21,11 +21,21 @@ const getAllProducts = async (req, res) => {
   if (name) {
     queryObject.name = { $regex: name, $options: "i" };
   }
-  const products = await Product.find(queryObject);
 
+  let result = Product.find(queryObject);
+
+  if (sort) {
+    const fields = sort.split(",").join(" ");
+    result = result.sort(fields);
+  } else {
+    result = result.sort("createdAt");
+  }
+
+  const products = await result;
   res.status(200).json({
     amount: products.length,
     query: queryObject,
+    sortBy: sort,
     raw_query: req.query,
     products,
   });
