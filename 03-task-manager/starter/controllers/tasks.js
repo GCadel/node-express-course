@@ -1,20 +1,21 @@
 const Task = require("../models/Task");
 const asyncWrapper = require("../middleware/async.js");
+const { createCustomError } = require("../errors/custom-error.js");
 
 const getAllTasks = asyncWrapper(async (req, res) => {
   const tasks = await Task.find();
   res.status(200).json({ tasks, amount: tasks.length });
 });
 
-const getTask = asyncWrapper(async (req, res) => {
+const getTask = asyncWrapper(async (req, res, next) => {
   const { id: taskId } = req.params;
 
   // const task = await Task.findById(taskId);
   const task = await Task.findOne({ _id: taskId });
   if (!task) {
-    return res
-      .status(404)
-      .json({ message: `Unable to find task with id ${taskId}` });
+    return next(
+      createCustomError(`Unable to find task with id ${taskId}`, 404)
+    );
   }
   res.status(200).json({ task });
 });
@@ -24,7 +25,7 @@ const createTask = asyncWrapper(async (req, res) => {
   res.status(201).json({ task });
 });
 
-const updateTask = asyncWrapper(async (req, res) => {
+const updateTask = asyncWrapper(async (req, res, next) => {
   const taskID = req.params.id;
 
   const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, {
@@ -33,17 +34,21 @@ const updateTask = asyncWrapper(async (req, res) => {
   });
 
   if (!task) {
-    return res.status(404).json({ message: `Unable to find task ${taskID}` });
+    return next(
+      createCustomError(`Unable to find task with id ${taskID}`, 404)
+    );
   }
   res.status(200).json({ task });
 });
 
-const deleteTask = asyncWrapper(async (req, res) => {
+const deleteTask = asyncWrapper(async (req, res, next) => {
   const { id: taskId } = req.params;
 
   const result = await Task.findByIdAndDelete(taskId);
   if (!result) {
-    throw new Error("Task does not exist");
+    return next(
+      createCustomError(`Unable to find task with id ${taskId}`, 404)
+    );
   }
   res.status(200).json({ message: `Deleted Task ${taskId}` });
 });
