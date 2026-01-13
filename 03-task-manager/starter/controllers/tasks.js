@@ -1,54 +1,57 @@
 const Task = require("../models/Task");
+const asyncWrapper = require("../middleware/async.js");
+const { createCustomError } = require("../errors/custom-error.js");
 
-const getAllTasks = async (req, res) => {
+const getAllTasks = asyncWrapper(async (req, res) => {
   const tasks = await Task.find();
-  res.status(200).json(tasks);
-};
+  res.status(200).json({ tasks, amount: tasks.length });
+});
 
-const getTask = async (req, res) => {
-  const taskId = req.params.id;
-  const task = await Task.findById(taskId);
+const getTask = asyncWrapper(async (req, res, next) => {
+  const { id: taskId } = req.params;
+
+  // const task = await Task.findById(taskId);
+  const task = await Task.findOne({ _id: taskId });
   if (!task) {
-    res.status(404).json({ message: "Item does not exist" });
-    return;
+    return next(
+      createCustomError(`Unable to find task with id ${taskId}`, 404)
+    );
   }
-  res.status(200).json(task);
-};
+  res.status(200).json({ task });
+});
 
-const createTask = async (req, res) => {
-  try {
-    const task = await Task.create(req.body);
-    res.status(201).json(task);
-  } catch (error) {
-    res
-      .status(400)
-      .json({ message: "Unable to create task", error: error.message });
+const createTask = asyncWrapper(async (req, res) => {
+  const task = await Task.create(req.body);
+  res.status(201).json({ task });
+});
+
+const updateTask = asyncWrapper(async (req, res, next) => {
+  const taskID = req.params.id;
+
+  const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!task) {
+    return next(
+      createCustomError(`Unable to find task with id ${taskID}`, 404)
+    );
   }
-};
+  res.status(200).json({ task });
+});
 
-const updateTask = async (req, res) => {
-  const taskId = req.params.id;
-  const result = await Task.findByIdAndUpdate(taskId, req.body);
-  if (!result) {
-    res
-      .status(404)
-      .json({ message: "Unable to update task", error: "Task does not exist" });
-    return;
-  }
-  res.status(200).json({ message: `Updated Task ${taskId}` });
-};
+const deleteTask = asyncWrapper(async (req, res, next) => {
+  const { id: taskId } = req.params;
 
-const deleteTask = async (req, res) => {
-  const taskId = req.params.id;
   const result = await Task.findByIdAndDelete(taskId);
   if (!result) {
-    res
-      .status(404)
-      .json({ message: "Unable to delete task", error: "Task does not exist" });
-    return;
+    return next(
+      createCustomError(`Unable to find task with id ${taskId}`, 404)
+    );
   }
   res.status(200).json({ message: `Deleted Task ${taskId}` });
-};
+});
 
 module.exports = {
   getAllTasks,
