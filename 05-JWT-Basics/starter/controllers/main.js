@@ -1,6 +1,5 @@
-const { JsonWebTokenError, sign, decode, verify } = require("jsonwebtoken");
-const CustomAPIError = require("../errors/custom-error");
-const { json } = require("express");
+const { sign } = require("jsonwebtoken");
+const { BadRequestError } = require("../errors");
 
 const login = async (req, res) => {
   const { username, password } = req.body;
@@ -12,12 +11,10 @@ const login = async (req, res) => {
       expiresIn: "1d",
     });
 
-    console.log(decode(token));
-
     // send to frontend
     return res.status(200).json({ msg: `Account created`, token });
   }
-  throw new CustomAPIError("Missing username or password", 400);
+  throw new BadRequestError("Missing username or password");
 };
 
 const dashboard = async (req, res) => {
