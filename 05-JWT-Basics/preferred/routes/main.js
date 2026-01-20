@@ -1,13 +1,13 @@
 const express = require("express");
-const { login, dashboard } = require("../controllers/main");
-const authMiddleware = require("../middleware/auth.js");
+const { logon, hello } = require("../controllers/main");
+const protectedAuthMiddleware = require("../middleware/auth.js");
 
 const router = express.Router();
 
 // Private routes
-router.route("/dashboard").get(authMiddleware, dashboard);
+router.route("/hello").get(protectedAuthMiddleware, hello);
 
 // Public routes
-router.route("/login").post(login);
+router.route("/logon").post(logon);
 
 module.exports = router;
