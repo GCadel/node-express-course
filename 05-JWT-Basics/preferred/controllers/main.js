@@ -9,14 +9,16 @@ const logon = async (req, res) => {
       expiresIn: "24h",
     });
 
-    res.status(200).json({ message: `Successfully created a token`, token });
+    return res
+      .status(200)
+      .json({ message: `Successfully created a token`, token });
   }
   throw new BadRequestError("Missing name or password");
 };
 
 const hello = async (req, res) => {
   const { user } = req;
-  res.status(200).json({ message: `Hello there, ${user.name}` });
+  return res.status(200).json({ message: `Hello there, ${user.name}` });
 };
 
 module.exports = { logon, hello };
