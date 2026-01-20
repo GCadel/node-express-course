@@ -18,7 +18,7 @@ const logon = async (req, res) => {
 
 const hello = async (req, res) => {
   const { user } = req;
-  return res.status(200).json({ message: `Hello there, ${user.name}` });
+  return res.status(200).json({ message: `You're ${user.name}, remember?` });
 };
 
 module.exports = { logon, hello };
