@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hello World</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+  <main>
+    <form class="form contact-form">
+      <h5>Hello World</h5>
+      <h6>Registration Form</h6>
+      <div class="form-row">
+        <label for="username" class="form-label">Name</label>
+        <input type="text" class="form-input username-input" id="username" autocomplete="off" />
+      </div>
+      <div class="form-row">
+        <label for="password" class="form-label">password</label>
+        <input type="password" id="password" class="form-input password-input" autocomplete="off" />
+      </div>
+      <div class="text-small form-alert">there was an error</div>
+      <button type="submit" class="btn btn-block">submit</button>
+    </form>
+    <div class="container">
+      <h4>Who Am I?</h4>
+      <p class="token">Not Logged In</p>
+      <div class="result"></div>
+      <button class="btn btn-block" id="data">Find Out</button>
+    </div>
+  </main>
+  <script src="./browser-app.js"></script>
+</body>
+
+</html>
